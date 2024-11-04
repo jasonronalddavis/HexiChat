@@ -1,43 +1,35 @@
-// Import required libraries and modules
-const express = require('express');
-const bodyParser = require('body-parser');
-const { Configuration, OpenAIApi } = require('openai');
-require('dotenv').config();  // Load environment variables from .env file
+import fs from 'fs';
+import OpenAI from 'openai';
+
 
 const app = express();
-app.use(bodyParser.json());  // Parse JSON requests
+const upload = multer({ dest: 'uploads/' });
 
-// Initialize OpenAI API with API key from environment variables
-const openaiConfig = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
+// Initialize OpenAI with your API key
+const openai = new OpenAI({
+  apiKey: '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',  // Replace with your OpenAI API Key
 });
-const openai = new OpenAIApi(openaiConfig);
 
-// Endpoint to handle text data from the ESP32 and generate ChatGPT responses
-app.post('/chat', async (req, res) => {
+// Endpoint to handle audio file upload and transcription
+app.post('/transcribe', upload.single('audio'), async (req, res) => {
+  const audioFilePath = req.file.path;
+
   try {
-    const { text } = req.body;
-
-    // Send the text data (received from ESP32) to OpenAI's ChatGPT
-    const chatResponse = await openai.createCompletion({
-      model: "text-davinci-003",
-      prompt: text,  // Use the received text as the prompt
-      max_tokens: 150,
+    const transcription = await openai.audio.transcriptions.create({
+      file: fs.createReadStream(audioFilePath),
+      model: 'whisper-1',
+      response_format: 'text',
     });
 
-    const chatMessage = chatResponse.data.choices[0].text.trim();
-
-    // Respond with the AI-generated message
-    res.json({ chatMessage });
+    res.json({ transcription: transcription.text });
   } catch (error) {
-    console.error('Error generating chat response: ', error);
-    res.status(500).send('Error generating chat response.');
+    console.error('Error transcribing audio:', error);
+    res.status(500).json({ error: 'Failed to transcribe audio' });
+  } finally {
+    fs.unlinkSync(audioFilePath);  // Clean up uploaded file
   }
 });
 
-// Start the Express server on port 3000 or the environment's port
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(3000, () => {
+  console.log('Server running on port 3000');
 });
-//BARNES
