@@ -2,14 +2,18 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/server.js",  
+      "src": "hexichat/api/*.js",
       "use": "@vercel/node"
     }
   ],
+  "env": {
+    "OPENAI_API_KEY": "@openai_api_key"
+  },
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "api/$1"
+      "dest": "hexichat/api/$1"
     }
-  ]
+  ],
+  "outputDirectory": "" 
 }
