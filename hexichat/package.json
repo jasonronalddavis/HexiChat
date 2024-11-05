@@ -5,7 +5,6 @@
         "description": "ChatBot server for handling different response modes using OpenAI.",
         "main": "server.js",
         "scripts": {
-          "build": "echo 'No build step required'",
           "start": "vercel dev"
         },
 "keywords": ["chatbot", "openai", "express"],
