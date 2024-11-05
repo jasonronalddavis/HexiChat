@@ -28,7 +28,7 @@ app.post('/transcribe', upload.single('audio'), async (req, res) => {
     console.error('Error transcribing audio:', error);
     res.status(500).json({ error: 'Failed to transcribe audio' });
   } finally {
-    fs.unlinkSync(audioFilePath);  //// Clean up uploaded file
+    fs.unlinkSync(audioFilePath);  ///// Clean up uploaded file
   }
 });
 
